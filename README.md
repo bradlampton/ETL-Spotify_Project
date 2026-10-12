@@ -50,3 +50,60 @@ To maintain a production-ready interval, use this EventBridge Schedule Cron patt
 ```text
 0 12 ? * MON,WED,FRI *
 ```
+markdown
+## 📊 Business Intelligence & Visualization (Google Looker Studio)
+
+To provide data consumers with an interactive analytical interface, the serverless data lakehouse is directly integrated with **Google Looker Studio**. This allows for zero-cost, real-time business intelligence dashboarding querying data hosted natively inside Amazon S3 via the Amazon Athena execution engine.
+
+### 🛠️ Step-by-Step Connection Guide
+
+Follow these steps to establish a secure data bridge from AWS to Google Looker Studio:
+
+#### 1. Provision IAM Access Credentials
+Looker Studio requires read access to your AWS Data Catalog and S3 buckets. 
+1. Open the [AWS IAM Console](https://amazon.com).
+2. Navigate to **Users** and click on your active deployment user profile.
+3. Select the **Security credentials** tab and click **Create access key**.
+4. Choose **Application running outside AWS**, click **Next**, and download the generated `.csv` credentials file containing your **Access Key ID** and **Secret Access Key**.
+
+#### 2. Establish Data Source Mapping
+1. Navigate to [Google Looker Studio](https://google.com) and click **Create** > **Data Source**.
+2. In the connector search bar, type **Amazon Athena** and select the connector.
+3. Provide your secure authentication parameters:
+   * **AWS Access Key ID:** `YOUR_ACCESS_KEY`
+   * **AWS Secret Access Key:** `YOUR_SECRET_KEY`
+4. Set up the structural endpoint parameters using the dropdown selections:
+   * **Region:** `us-east-2` *(or your primary AWS deployment region)*
+   * **Catalog:** `AwsDataCatalog`
+   * **Database:** `spotify_analytics`
+   * **Table:** `processed_data`
+5. Click **Connect** in the upper right corner to fetch the metadata schema layout.
+
+---
+
+### 🎨 Recommended Dashboard Metrics & Configuration
+
+To effectively monitor your automated music ingest architecture, configure these foundational widgets on your visualization canvas:
+
+#### A. The Popularity Leaderboard (Bar Chart)
+* **Dimension:** `track_name`
+* **Breakdown Dimension:** `artists`
+* **Metric:** `popularity` (Set aggregation parameter to `MAX`)
+* **Sort:** `popularity` (Descending)
+* *Insight:* Captures the highest-performing tracking assets ingested by the pipeline.
+
+#### B. Artist Market Share Analysis (Pie/Donut Chart)
+* **Dimension:** `artists`
+* **Metric:** `Record Count` (Aggregation: `COUNT`)
+* *Insight:* Visualizes artist frequency across automated execution cycles.
+
+#### C. Operational Data Pipeline Pulse (Scorecard)
+* **Metric:** `source_file` (Change aggregation to `COUNT DISTINCT`)
+* **Text Label:** `Total Automated Pipeline Runs`
+* *Insight:* Serves as a vital data engineering metric, confirming that your Amazon EventBridge cron schedules are firing, processing files, and mutating your cloud storage layer completely on autopilot over time.
+
+---
+
+## 🔒 Production Security Best Practices (For Portfolios)
+> ⚠️ **CRITICAL SECURITY NOTE:** Never commit your raw AWS Access Keys or Secret Keys directly into your public Git source tracking repositories. Ensure your `.env` tracking controls are safely registered inside your `.gitignore` settings to prevent cloud authentication exposures.
+
