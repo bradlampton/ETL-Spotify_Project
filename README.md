@@ -122,3 +122,14 @@ To effectively monitor your automated music ingest architecture, configure these
 
 ---
 
+Tableau Dashboard Layout Enhancements
+Link to public Tableau dashboard: https://public.tableau.com/app/profile/brad.criss.lampton
+
+To improve usability and presentation, each visualization was configured with optimal Tableau sizing settings:
+
+Duration Leaderboard → Set to Entire View to maximize chart space, display full track names, and eliminate unnecessary scrolling.
+Artist Concentration Density → Set to Entire View to automatically scale the pie chart, making artist distribution easier to interpret at a glance.
+Pipeline Pulse Log List → Set to Fit Width to ensure ETL log details and source file names remain fully visible while preserving vertical scrolling for historical execution records.
+
+These adjustments create a cleaner, more professional dashboard experience, improving readability, visual impact, and overall user interaction for portfolio and recruiter demonstrations.
+
