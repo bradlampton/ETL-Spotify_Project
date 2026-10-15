@@ -51,35 +51,52 @@ To maintain a production-ready interval, use this EventBridge Schedule Cron patt
 0 12 ? * MON,WED,FRI *
 ```
 markdown
-## 📊 Business Intelligence & Visualization (Google Looker Studio)
+## 🟦 Enterprise Business Intelligence Layer (Microsoft Power BI)
 
-To provide data consumers with an interactive analytical interface, the serverless data lakehouse is directly integrated with **Google Looker Studio**. This allows for zero-cost, real-time business intelligence dashboarding querying data hosted natively inside Amazon S3 via the Amazon Athena execution engine.
+To translate complex data lakehouse infrastructure into actionable business insights, a professional analytics reporting layer was deployed using **Microsoft Power BI Desktop**. The architecture leverages a serverless cloud-federated model, connecting Power BI straight to the **Amazon Athena** query execution engine in the native `us-east-2` AWS region via a secure gateway tunnel.
 
-### 🛠️ Step-by-Step Connection Guide
+### ⚡ Architectural Performance Tuning & Optimization
 
-Follow these steps to establish a secure data bridge from AWS to Google Looker Studio:
+A primary challenge with multi-cloud architectures is eliminating data replication latency while controlling serverless processing overhead. Standard BI dataset ingestion requires scheduled import loops that scan the entire history of an S3 storage bucket, racking up significant data scanning compute costs.
 
-#### 1. Provision IAM Access Credentials
-Looker Studio requires read access to your AWS Data Catalog and S3 buckets. 
-1. Open the [AWS IAM Console](https://amazon.com).
-2. Navigate to **Users** and click on your active deployment user profile.
-3. Select the **Security credentials** tab and click **Create access key**.
-4. Choose **Application running outside AWS**, click **Next**, and download the generated `.csv` credentials file containing your **Access Key ID** and **Secret Access Key**.
+To solve this, the reporting layer was built using an optimized **DirectQuery Custom SQL Connection Block** injected directly at the ingestion gate. This ensures zero local caching storage overhead (0 MB footprint), with all computations pushed downstream to AWS's distributed compute layer in real time.
 
-#### 2. Establish Data Source Mapping
-1. Navigate to [Google Looker Studio](https://google.com) and click **Create** > **Data Source**.
-2. In the connector search bar, type **Amazon Athena** and select the connector.
-3. Provide your secure authentication parameters:
-   * **AWS Access Key ID:** `YOUR_ACCESS_KEY`
-   * **AWS Secret Access Key:** `YOUR_SECRET_KEY`
-4. Set up the structural endpoint parameters using the dropdown selections:
-   * **Region:** `us-east-2` *(or your primary AWS deployment region)*
-   * **Catalog:** `AwsDataCatalog`
-   * **Database:** `spotify_analytics`
-   * **Table:** `processed_data`
-5. Click **Connect** in the upper right corner to fetch the metadata schema layout.
+```sql
+SELECT 
+    track_id,
+    track_name,
+    artists,
+    album_name,
+    album_release_date,
+    TRY_CAST(popularity AS INT) as popularity,
+    processed_at,
+    source_file
+FROM "spotify_analytics"."processed_data"
+WHERE processed_at >= CAST(date_add('day', -7, current_date) AS VARCHAR)
+ORDER BY popularity DESC
+```
+
+### 🧠 Performance Engineering Breakthroughs
+
+* **Sliding-Window Partitioning:** By establishing an active 7-day sliding data window filter (`WHERE processed_at >= ...`), the query engine bypasses cold historical archives on S3. This limits the data scan layout exclusively to the most recent pipeline runs, minimizing serverless runtime compute charges.
+* **Source-Level Type Conversion:** Implementing `TRY_CAST(popularity AS INT)` directly within Presto SQL ensures formatting execution happens inside AWS before cross-cloud transit, preventing local dashboard rendering bottlenecks.
+* **Pure Cloud-Federated Architecture:** Operating in true **DirectQuery Mode** ensures that every dashboard interaction triggers an instantaneous, secure round-trip API call down through an **On-Premises Data Gateway** straight to AWS, serving live metrics with zero local caching requirements.
 
 ---
+
+### 🎨 Implemented Executive Visualizations
+
+The public interactive report canvas features three strategic components engineered to track both music popularity trends and backend pipeline reliability parameters:
+
+1. **The Popularity Leaderboard (Clustered Bar Chart):** Maps track names dynamically against max calculation popularity metrics, sorting track rankings in descending order to surface the highest-velocity assets currently streaming in the lakehouse.
+2. **Artist Concentration Density (Donut Chart):** Captures record count frequencies partitioned across primary artists to measure dataset distribution volume across automated data ingest cycles.
+3. **Data Refresh Pulse Scorecard (Multi-Row Card):** Serves as a vital data engineering reliability tracker, printing the explicit, unique raw execution file keys (`source_file`) alongside live cleaning timestamps (`processed_at`) completely on autopilot.
+
+---
+
+## 🔗 Live Interactive Link
+👉 **[View the Live Interactive Power BI Dashboard Portfolio Report](YOUR_PUBLIC_POWER_BI_URL_HERE)**
+*(No sign-in or Microsoft account required. Real-time data streams are routed live through the custom AWS gateway connection).*
 
 ### 🎨 Recommended Dashboard Metrics & Configuration
 
@@ -103,7 +120,4 @@ To effectively monitor your automated music ingest architecture, configure these
 * *Insight:* Serves as a vital data engineering metric, confirming that your Amazon EventBridge cron schedules are firing, processing files, and mutating your cloud storage layer completely on autopilot over time.
 
 ---
-
-## 🔒 Production Security Best Practices (For Portfolios)
-> ⚠️ **CRITICAL SECURITY NOTE:** Never commit your raw AWS Access Keys or Secret Keys directly into your public Git source tracking repositories. Ensure your `.env` tracking controls are safely registered inside your `.gitignore` settings to prevent cloud authentication exposures.
 
