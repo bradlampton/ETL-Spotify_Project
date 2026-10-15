@@ -95,7 +95,7 @@ The public interactive report canvas features three strategic components enginee
 ---
 
 ## 🔗 Live Interactive Link
-👉 **[View the Live Interactive Power BI Dashboard Portfolio Report]((https://shorturl.at/Ea0SW))**
+👉 **[View the Live Interactive Power BI Dashboard Portfolio Report]((https://shorturl.at/fIyf8))**
 *(No sign-in or Microsoft account required. Real-time data streams are routed live through the custom AWS gateway connection).*
 
 ### 🎨 Recommended Dashboard Metrics & Configuration
